@@ -1,23 +1,29 @@
-class Jugador:
-    def __init__(self, nombre,fondos,cartas, ciega=False, estado=True):
-        self.nombre = nombre
-        self.fondos = fondos
-        self.cartas = cartas
-        self.ciega = ciega
-        self.estado = estado
+from typing import List
+from carta import Carta
 
-    def sumar_fondos(self, fondos):
-        self.fondos += fondos
-        
-    def restar_fondos(self, fondos):
-        if fondos <= self.fondos:
-            self.fondos -= fondos
-        else:
-            print("No tienes suficientes fondos para realizar esta acción.")
+class Jugador:
+    def __init__(self, nombre: str, fondos: int):
+        self.nombre = nombre.strip()
+        self.fondos = max(0, int(fondos)) # Asegurarse de que los fondos sean un entero no negativo
+        self.cartas: List[Carta] = []
+        self.ciega = False
+        self.estado = True   # True = activo en la mano
+
+    def sumar_fondos(self, cantidad: int):
+        if cantidad > 0:
+            self.fondos += cantidad
+
+    def restar_fondos(self, cantidad: int) -> bool:
+        if cantidad <= 0:
+            return False
+        if cantidad <= self.fondos:
+            self.fondos -= cantidad
+            return True
+        print(f"{self.nombre} no tiene suficientes fondos.")
+        return False
 
     def __str__(self):
-        return f"{self.nombre} - Fondos: ${self.fondos} - Cartas: {self.cartas} - Ciega: {self.ciega} - Estado: {'Activo' if self.estado else 'Retirado'}"
-    
-if __name__ == "__main__":
-    jugador1 = Jugador("Alice", 100, [])
-    print(jugador1)
+        estado = "Activo" if self.estado else "Retirado"
+        ciega = " (Ciega)" if self.ciega else ""
+        cartas_str = " ".join(str(c) for c in self.cartas) if self.cartas else "Sin cartas"
+        return f"{self.nombre}{ciega} | Fondos: ${self.fondos:,} | Cartas: {cartas_str} | {estado}"
